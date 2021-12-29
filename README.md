@@ -1,4 +1,4 @@
-Note: this README file and accompanying data set were accessed by John Zhang on Tuesday, December 28th 2021. "ghcnd-all.tar.gz" is downloaded into the repository, as well as the metadata, and is stripped to contain just the stations in California from 2019 onward.
+Note: this README file and accompanying data set were accessed by John Zhang on Tuesday, December 28th 2021. "ghcnd-all.tar.gz" is downloaded into the repository, as well as the metadata, and is stripped to contain just the stations in the United States from 2019 onward.
 
 --------------------------------------------------------------------------------
 Citation:

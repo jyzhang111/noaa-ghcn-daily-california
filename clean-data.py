@@ -5,60 +5,66 @@ import os
 # clean and store raw temp data
 # ---------
 
-path = "datasets/noaa-ghcn/ghcnm.tavg.v4.0.1.20210218.qcf.dat"
+from os import listdir
+from os.path import isfile, join
+onlyfiles = [f for f in listdir("ghcn_all") if isfile(join("ghcn_all", f))]
 
-colnames = ["ID", "Year", "Element"]
+colnames = ["ID", "Year", "Month", "Element"]
 
-colspecs = [(0,11),(11, 15),(15, 19)]
+colspecs = [(0,11),(11, 15),(15, 17),(17, 21)]
 
-headers = ["VALUE", "DMFLAG", "QCFLAG", "DSFLAG"]
+headers = ["VALUE", "MFLAG", "QFLAG", "SFLAG"]
 
-i = 19
+i = 21
 j = 24
 
-for month in range(12):
+for day in range(31):
     for header in headers:
         colnames.append(f"{header}{month+1}")
 
-    spacer = 19 + month*8
+    spacer = 21 + day*8
     colspecs.append((spacer, spacer + 5))
     colspecs.append((spacer + 5, spacer + 6))
     colspecs.append((spacer + 6, spacer + 7))
     colspecs.append((spacer + 7, spacer + 8))
 
-df = pd.read_fwf(path, 
-                 colspecs = colspecs,
-                 names = colnames)
+keepnames = [name for name in df.columns if (name in ["ID", "Year", "Month", "Element"]) or "VALUE" in name]
+
+df_list = []
+
+for f in onlyfiles:
+    if f[0:2] != "US": continue
+
+    path = join("ghcn_all", f)
+
+    df = pd.read_fwf(path, 
+                     colspecs = colspecs,
+                     names = colnames)
 
 
-keepnames = [name for name in df.columns if (name in ["ID", "Year"]) or "VALUE" in name]
-df = df[keepnames]
-df = df[df["Year"] > 1900]
+    df = df[keepnames]
+    df = df[df["Year"] >= 2019]
 
-df = df.replace(-9999, np.nan)
+    df["Date"] = df["Year"].astype(str) + "-" + df["Month"].astype(str)
+    df.drop(["Year", "Month"], axis = 1)
 
-import os
-if not os.path.exists('datasets/noaa-ghcn/decades'):
-    os.makedirs('datasets/noaa-ghcn/decades')
+    df = df.replace(-9999, np.nan)
 
-for i in range(12):
-    begin = 1901 + i*10
-    end   = begin + 9
-    sub = df[(df["Year"] >= begin) & (df["Year"] <= end)]
-    path = f"datasets/noaa-ghcn/decades/{begin}-{end}.csv"
-    sub.to_csv(path, index = False)
+    df_list.append(df)
 
+df_with_all_stations = pd.concat(df_list, axis=1)
+df_with_all_stations.to_csv("all_stations_2019-2021.csv", index = False)
 
 # ---------
 # clean and store metadata
 # ---------
 
-path = "datasets/noaa-ghcn/ghcnm.tavg.v4.0.1.20210218.qcf.inv"
-colspecs = [(0, 11), (12, 20), (21, 30), (31, 37), (38, 68)]
-colnames = ["ID", "LATITUDE", "LONGITUDE", "STNELEV", "NAME"]
+path = "ghcnd-stations.txt"
+colspecs = [(0, 11), (12, 20), (21, 30), (31, 37), (38, 40), (41, 71)]
+colnames = ["ID", "LATITUDE", "LONGITUDE", "STNELEV", "STATE", "NAME"]
 
 df = pd.read_fwf(path, 
                  colspecs = colspecs,
                  names = colnames)
 
-df.to_csv("datasets/noaa-ghcn/station-metadata.csv", index = False)
+df.to_csv("station-metadata.csv", index = False)
