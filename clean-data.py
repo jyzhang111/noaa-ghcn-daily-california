@@ -7,7 +7,7 @@ import os
 
 from os import listdir
 from os.path import isfile, join
-onlyfiles = [f for f in listdir("ghcn_all") if isfile(join("ghcn_all", f))]
+onlyfiles = [f for f in listdir("ghcnd_all") if isfile(join("ghcnd_all", f))]
 
 colnames = ["ID", "Year", "Month", "Element"]
 
@@ -35,7 +35,7 @@ df_list = []
 for f in onlyfiles:
     if f[0:2] != "US": continue
 
-    path = join("ghcn_all", f)
+    path = join("ghcnd_all", f)
 
     df = pd.read_fwf(path, 
                      colspecs = colspecs,
