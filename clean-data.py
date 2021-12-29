@@ -20,7 +20,7 @@ j = 24
 
 for day in range(31):
     for header in headers:
-        colnames.append(f"{header}{month+1}")
+        colnames.append(f"{header}{day+1}")
 
     spacer = 21 + day*8
     colspecs.append((spacer, spacer + 5))
@@ -28,7 +28,7 @@ for day in range(31):
     colspecs.append((spacer + 6, spacer + 7))
     colspecs.append((spacer + 7, spacer + 8))
 
-keepnames = [name for name in df.columns if (name in ["ID", "Year", "Month", "Element"]) or "VALUE" in name]
+keepnames = [name for name in colnames if (name in ["ID", "Year", "Month", "Element"]) or "VALUE" in name]
 
 df_list = []
 
